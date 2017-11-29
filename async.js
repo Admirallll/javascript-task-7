@@ -21,7 +21,7 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
     }
 
     function reject(index, err) {
-        result[index] = new Error(err);
+        result[index] = err;
         promisesInProgress--;
         update();
     }
