@@ -8,8 +8,8 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         let result = [];
         let jobsInProgress = 0;
         let currentJobIndex = 0;
-        resolveIfDone();
         fillJobsQueue();
+        resolveIfDone();
 
         function handleJobResult(index, message) {
             result[index] = message;
