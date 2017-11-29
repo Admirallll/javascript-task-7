@@ -8,12 +8,9 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
     let callbacks = [];
     let promisesInProgress = 0;
     let currentIndex = 0;
-    let jobsQueue = [];
-    for (let job of jobs) {
-        jobsQueue.push(job);
+    for (let i = 0; i < jobs.length; i++) {
         result.push(undefined);
     }
-    jobsQueue.reverse();
     update();
     function resolve(index, message) {
         result[index] = message;
@@ -28,8 +25,8 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
     }
 
     function update() {
-        while (promisesInProgress < parallelNum && jobsQueue.length > 0) {
-            let job = jobsQueue.pop();
+        while (promisesInProgress < parallelNum && currentIndex < jobs.length) {
+            let job = jobs[currentIndex];
             new Promise((res, rej) => {
                 setTimeout(() => rej('Promise timeout'), timeout);
                 job().then(res, rej);
