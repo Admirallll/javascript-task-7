@@ -30,7 +30,7 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         while (promisesInProgress < parallelNum && currentIndex < jobs.length) {
             let job = jobs[currentIndex];
             new Promise((res, rej) => {
-                setTimeout(() => rej('Promise timeout'), timeout);
+                setTimeout(() => rej(new Error('Promise timeout')), timeout);
                 job().then(res, rej);
             }).then(resolve.bind(null, currentIndex), reject.bind(null, currentIndex));
             promisesInProgress++;
