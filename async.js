@@ -6,31 +6,36 @@ exports.runParallel = runParallel;
 function runParallel(jobs, parallelNum, timeout = 1000) {
     return new Promise(resolve => {
         let result = [];
-        let promisesInProgress = 0;
-        let currentIndex = 0;
-        update();
+        let jobsInProgress = 0;
+        let currentJobIndex = 0;
+        resolveIfDone();
+        fillJobsQueue();
 
         function handleJobResult(index, message) {
             result[index] = message;
-            promisesInProgress--;
-            update();
+            jobsInProgress--;
+            fillJobsQueue();
+            resolveIfDone();
         }
 
         function startJob(job) {
-            let indexedHandler = handleJobResult.bind(null, currentIndex);
-            new Promise((res, rej) => {
-                setTimeout(() => rej(new Error('Promise timeout')), timeout);
-                job().then(res, rej);
+            let indexedHandler = handleJobResult.bind(null, currentJobIndex);
+            new Promise((_resolve, _reject) => {
+                setTimeout(() => _reject(new Error('Promise timeout')), timeout);
+                job().then(_resolve, _reject);
             }).then(indexedHandler, indexedHandler);
-            promisesInProgress++;
-            currentIndex++;
+            jobsInProgress++;
+            currentJobIndex++;
         }
 
-        function update() {
-            while (promisesInProgress < parallelNum && currentIndex < jobs.length) {
-                startJob(jobs[currentIndex]);
+        function fillJobsQueue() {
+            while (jobsInProgress < parallelNum && currentJobIndex < jobs.length) {
+                startJob(jobs[currentJobIndex]);
             }
-            if (currentIndex === jobs.length && promisesInProgress === 0) {
+        }
+
+        function resolveIfDone() {
+            if (currentJobIndex === jobs.length && jobsInProgress === 0) {
                 resolve(result);
             }
         }
