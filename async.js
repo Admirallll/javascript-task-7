@@ -8,10 +8,12 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
     let callbacks = [];
     let promisesInProgress = 0;
     let currentIndex = 0;
+    let isEnded = false;
     for (let i = 0; i < jobs.length; i++) {
         result.push(undefined);
     }
     update();
+
     function resolve(index, message) {
         result[index] = message;
         promisesInProgress--;
@@ -38,11 +40,15 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
             for (let callback of callbacks) {
                 result = callback(result);
             }
+            isEnded = true;
         }
     }
 
     return {
         then: function (callback) {
+            if (isEnded) {
+                result = callback(result);
+            }
             callbacks.push(callback);
 
             return this;
